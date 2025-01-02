@@ -12,11 +12,11 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Contract address is required" });
   }
 
-  // Alchemy RPC URL
+  // Alchemy RPC URL for Base Mainnet
   const alchemyBaseUrl = `https://base-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`;
 
   try {
-    // Setup Ethers provider
+    // Setup Ethers provider for Base Mainnet
     const provider = new JsonRpcProvider(alchemyBaseUrl);
 
     // Fetch contract code
