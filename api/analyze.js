@@ -1,60 +1,61 @@
-const express = require("express");
-const axios = require("axios");
-const { Configuration, OpenAIApi } = require("openai");
+import { JsonRpcProvider } from 'ethers';
+import axios from 'axios';
 
-const app = express();
-app.use(express.json());
-
-const alchemyApiKey = process.env.ALCHEMY_API_KEY;
-const openai = new OpenAIApi(
-  new Configuration({
-    apiKey: process.env.OPENAI_API_KEY,
-  })
-);
-
-app.post("/api/analyze", async (req, res) => {
-  const { contractAddress } = req.body;
-  if (!contractAddress) {
-    return res.status(400).json({ error: "Contract address is required." });
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
-  try {
-    console.log("Analyzing contract address:", contractAddress);
+  const { contractAddress } = req.body;
 
-    // Alchemy API Call
-    const alchemyResponse = await axios.get(
-      `https://eth-mainnet.g.alchemy.com/v2/${alchemyApiKey}`,
+  if (!contractAddress) {
+    return res.status(400).json({ error: "Contract address is required" });
+  }
+
+  // Alchemy RPC URL
+  const alchemyBaseUrl = `https://base-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`;
+
+  try {
+    // Setup Ethers provider
+    const provider = new JsonRpcProvider(alchemyBaseUrl);
+
+    // Fetch contract code
+    const contractCode = await provider.getCode(contractAddress);
+
+    // Check if the contract is valid
+    if (contractCode === "0x" || !contractCode) {
+      return res.status(404).json({ error: "Contract not found or is not a smart contract" });
+    }
+
+    // Send request to OpenAI for analysis
+    const openAIResponse = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
       {
-        params: {
-          module: "contract",
-          action: "getsourcecode",
-          address: contractAddress,
+        model: "gpt-4",
+        messages: [
+          {
+            role: "system",
+            content: "You are an AI that analyzes Ethereum smart contract bytecode.",
+          },
+          {
+            role: "user",
+            content: `Analyze this smart contract bytecode: ${contractCode}`,
+          },
+        ],
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
         },
       }
     );
 
-    console.log("Alchemy Response:", alchemyResponse.data);
+    const analysis = openAIResponse.data.choices[0].message.content;
 
-    if (!alchemyResponse.data || !alchemyResponse.data.result) {
-      return res.status(500).json({ error: "Invalid Alchemy response." });
-    }
-
-    const contractSourceCode = alchemyResponse.data.result[0]?.SourceCode || "No source code found";
-    
-    // OpenAI API Call
-    const aiResponse = await openai.createCompletion({
-      model: "text-davinci-003",
-      prompt: `Analyze this Ethereum contract:\n\n${contractSourceCode}`,
-      max_tokens: 100,
-    });
-
-    console.log("OpenAI Response:", aiResponse.data);
-
-    res.json({ analysis: aiResponse.data.choices[0].text.trim() });
+    // Return the analysis
+    res.status(200).json({ analysis });
   } catch (error) {
-    console.error("Error occurred:", error.message);
-    res.status(500).json({ error: error.message });
+    console.error("Error analyzing contract:", error.response?.data || error.message);
+    res.status(500).json({ error: "Failed to analyze contract" });
   }
-});
-
-module.exports = app;
+}
