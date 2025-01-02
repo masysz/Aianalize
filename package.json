@@ -1,14 +1,25 @@
 {
   "name": "analyzed-token-ai",
   "version": "1.0.0",
-  "description": "AI-based contract analyzer",
-  "main": "api/analyze.js",
+  "main": "index.js",
   "scripts": {
-    "start": "vercel dev"
+    "dev": "next dev",
+    "start": "next start",
+    "build": "next build",
+    "lint": "eslint .",
+    "test": "jest"
   },
   "dependencies": {
-    "axios": "^1.5.0",
-    "express": "^4.18.2",
-    "openai": "^4.0.0"
-  }
+    "ethers": "^5.7.2",  // Tambahkan ethers.js
+    "axios": "^0.27.2",   // Masih digunakan
+    "openai": "^3.1.0"    // Jika ada dependency lain untuk OpenAI
+  },
+  "devDependencies": {
+    "eslint": "^8.30.0",
+    "jest": "^27.4.5"
+  },
+  "engines": {
+    "node": "14.x"  // Pastikan Node.js yang kompatibel
+  },
+  "private": true
 }
