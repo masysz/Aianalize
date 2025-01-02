@@ -19,20 +19,40 @@ app.post("/api/analyze", async (req, res) => {
   }
 
   try {
+    console.log("Analyzing contract address:", contractAddress);
+
+    // Alchemy API Call
     const alchemyResponse = await axios.get(
       `https://eth-mainnet.g.alchemy.com/v2/${alchemyApiKey}`,
-      { params: { module: "contract", action: "getsourcecode", address: contractAddress } }
+      {
+        params: {
+          module: "contract",
+          action: "getsourcecode",
+          address: contractAddress,
+        },
+      }
     );
 
+    console.log("Alchemy Response:", alchemyResponse.data);
+
+    if (!alchemyResponse.data || !alchemyResponse.data.result) {
+      return res.status(500).json({ error: "Invalid Alchemy response." });
+    }
+
     const contractSourceCode = alchemyResponse.data.result[0]?.SourceCode || "No source code found";
+    
+    // OpenAI API Call
     const aiResponse = await openai.createCompletion({
       model: "text-davinci-003",
       prompt: `Analyze this Ethereum contract:\n\n${contractSourceCode}`,
       max_tokens: 100,
     });
 
+    console.log("OpenAI Response:", aiResponse.data);
+
     res.json({ analysis: aiResponse.data.choices[0].text.trim() });
   } catch (error) {
+    console.error("Error occurred:", error.message);
     res.status(500).json({ error: error.message });
   }
 });
