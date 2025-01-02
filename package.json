@@ -10,16 +10,16 @@
     "test": "jest"
   },
   "dependencies": {
-    "ethers": "^5.7.2",  // Tambahkan ethers.js
-    "axios": "^0.27.2",   // Masih digunakan
-    "openai": "^3.1.0"    // Jika ada dependency lain untuk OpenAI
+    "ethers": "^5.7.2",
+    "axios": "^0.27.2",   
+    "openai": "^3.1.0"
   },
   "devDependencies": {
     "eslint": "^8.30.0",
     "jest": "^27.4.5"
   },
   "engines": {
-    "node": "14.x"  // Pastikan Node.js yang kompatibel
+    "node": "14.x" 
   },
   "private": true
 }
