@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/analyze.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/analyze",
+      "dest": "api/analyze.js"
+    }
+  ],
+  "env": {
+    "OPENAI_API_KEY": "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",
+    "ALCHEMY_API_KEY": "Qt20BDFAKxkM_g0My74Ht6E9zbJZmgeh"
+  }
+}
