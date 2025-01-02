@@ -1,4 +1,4 @@
-import { JsonRpcProvider } from 'ethers';
+import { JsonRpcProvider } from '@ethersproject/providers';
 import axios from 'axios';
 
 export default async function handler(req, res) {
@@ -22,7 +22,6 @@ export default async function handler(req, res) {
     // Fetch contract code
     const contractCode = await provider.getCode(contractAddress);
 
-    // Check if the contract is valid
     if (contractCode === "0x" || !contractCode) {
       return res.status(404).json({ error: "Contract not found or is not a smart contract" });
     }
