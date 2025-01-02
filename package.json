@@ -1,0 +1,16 @@
+{
+  "name": "crypto-ai-analyze",
+  "version": "1.0.0",
+  "description": "Analyze Ethereum contracts using AI",
+  "main": "api/analyze.js",
+  "scripts": {
+    "start": "node api/analyze.js",
+    "dev": "nodemon api/analyze.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "openai": "^4.0.0",
+    "nodemon": "^2.0.22"
+  },
+  "license": "MIT"
+}
